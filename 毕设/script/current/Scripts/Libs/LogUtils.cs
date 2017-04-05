@@ -3,7 +3,7 @@ using System.Collections;
 
 public class LogUtils
 {
-
+    // 跟踪计数
     private static int traceCount = 0;
 
     /// <summary>

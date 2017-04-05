@@ -9,17 +9,18 @@ using System.Collections.Generic;
 /// </summary>
 public class DataLoader : MonoBehaviour
 {
+    // 数据加载类对象(单例)
     public static DataLoader Data;                              // instance of  this class
 
     /// <summary>
     /// 玩家已经通关的数据
     /// </summary>
     public static List<Player> MyData = new List<Player>();     // list of Player object
-
+    // 存入文件的key值 -- 玩家数据
     const string KEY_DATA = "DATA";                             // key PlayerPrefs
-
+    // 存入文件的key值 -- 第一次
     const string KEY_FRISTTIME = "one";                         // key check first app to play 
-
+    
     public static bool enableclick;
 
     public const string KEY_MAPPOS = "mappos";

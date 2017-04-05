@@ -10,9 +10,9 @@ public class CameraMovement : MonoBehaviour
 {
 	// 镜头移动对象（单例）
     public static CameraMovement mcamera;       // camera movement
-
+    // 星星坐标索引
     public static int StarPointMoveIndex;       // position index
-
+    // 大地图容器
     public RectTransform container;             // container of scroll view
 
     /// <summary>
@@ -62,32 +62,39 @@ public class CameraMovement : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && isPopup)
+        if (Input.GetKeyDown(KeyCode.Escape) && isPopup)    // 按下Esc且已弹出弹窗
         {
-            UnfreezeMap();
+            UnfreezeMap();                                  // 隐藏弹窗
         }
-        else if (Input.GetKeyDown(KeyCode.Escape))
+        else if (Input.GetKeyDown(KeyCode.Escape))          // 按下Esc
         {
-            ButtonActionController.Click.HomeScene();
+            ButtonActionController.Click.HomeScene();       // 跳转到开始场景
         }
     }
 
     /// <summary>
     /// set last position of container
     /// </summary>
-    void setLastpos()
+    void setLastpos()   // 设置相机结束位置
     {
+        // 获取相机开始y坐标
         float lastp = PlayerPrefs.GetFloat("LASTPOS", 0);
+        // 相机位置范围0-90
         if (lastp < 0) lastp = 0;
         else if (lastp > 90.8000f) lastp = 90.8f;
+        // 相机位置
         transform.position += new Vector3(0, lastp);
+        // 设置地图锚点位置
         container.anchoredPosition = new Vector2(container.anchoredPosition.x, -lastp / distance + 4740f);
     }
 
-    void SetPoint()
+    void SetPoint()     // 设置星结束位置
     {
+        // x坐标
         float x = PlayerPrefs.GetFloat("LASTPOSX", -0.0045f);
+        // y坐标
         float y = PlayerPrefs.GetFloat("LASTPOS", -3.587f);
+        // 设置星坐标
         StarPoint.transform.position = new Vector3(x, y, StarPoint.transform.position.z);
 
     }
@@ -95,10 +102,13 @@ public class CameraMovement : MonoBehaviour
     /// <summary>
     /// Update positio camera when scroller
     /// </summary>
-    public void CameraPosUpdate()
+    public void CameraPosUpdate()   // 更新相机位置
     {
+        // 设置相机位置
         transform.position = new Vector3(transform.position.x, -(container.anchoredPosition.y - 4740f) * distance, transform.position.z);
+        // 如果是移动状态
         if (setstate)
+            // 移动 = true
             movement = true;
     }
 
@@ -107,12 +117,15 @@ public class CameraMovement : MonoBehaviour
     /// show infomation of level player
     /// </summary>
     /// <param name="_map"></param>
-    public void PopUpShow(Player _map)
+    public void PopUpShow(Player _map)  // 弹窗显示玩家等级等信息
     {
+        // 显示弹窗tag
         isPopup = true;
+        // 冻结地图
         CameraMovement.mcamera.FreezeMap();
+        // 给player数据对象赋值
         map = _map;
-
+        // 三张星星图
         Image[] stars = new Image[3];
 
         //直接访问PopUp中的三个星星组件
@@ -129,31 +142,41 @@ public class CameraMovement : MonoBehaviour
                 stars[i].sprite = star[1];
         }
 
-
+        // 显示当前关卡最高分
         PopUp.transform.GetChild(4).GetComponent<Text>().text = _map.HightScore.ToString();
+        // 显示等级
         PopUp.transform.GetChild(6).GetComponent<Text>().text = _map.Level.ToString("00");
+        // 播放放大动画
         Animation am = PopUp.GetComponent<Animation>();
         am.enabled = true;
+        // 显示弹窗
         PopUp.SetActive(true);
     }
-
+    // 跳转到街机模式场景
     public void ArcadeScene()
     {
         ButtonActionController.Click.ArcadeScene(map);
     }
-
+    // 冻结地图
     public void FreezeMap()
     {
+        // 数据加载未完成
         DataLoader.enableclick = false;
+        // 开启渐变物理碰撞检测组件
         fade.GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
-
+    // 隐藏弹窗
     public void UnfreezeMap()
     {
+        // 播放点击音效
         SoundController.Sound.Click();
+        // 隐藏弹窗对象
         PopUp.SetActive(false);
+        // 弹窗隐藏tag
         isPopup = false;
+        // 数据加载完成
         DataLoader.enableclick = true;
+        // 禁用渐变的物理碰撞检测组件
         fade.GetComponent<CanvasGroup>().blocksRaycasts = false;
 
     }
