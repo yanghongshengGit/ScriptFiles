@@ -70,7 +70,7 @@ public class Timer : MonoBehaviour
         Timebar.fillAmount = 0;
         StartCoroutine(AdsCd());
     }
-
+    // 开启计时
     public void TimeTick(bool b)
     {
         if (b && PLayerInfo.MODE == 1)

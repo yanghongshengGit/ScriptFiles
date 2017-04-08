@@ -13,7 +13,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class Player		// 数据类，存玩家现在数据和状态
 {
     public int Level;		// 等级
-    public string Name;		// 名字
+    public string Name;		// 关卡名字
     public bool Locked;		// 该关卡是否上锁
 	public int Stars;		// 现有的星数？
     public int HightScore;	// 现最高分

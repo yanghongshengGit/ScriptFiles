@@ -8,17 +8,19 @@ using System.Collections.Generic;
 /// </summary>
 public class GameController : MonoBehaviour
 {
-
+    // 游戏控制对象（单例）
     public static GameController action;
-
+    // 下落速度
     public static float DROP_SPEED = 8;
+    // 下落延迟时间
     public static float DROP_DELAY = 0.5f;
-
+    // 当前状态（游戏中，暂停，）
     public int GameState;
-
+    // 不是空的位置的数量
     public int CellNotEmpty;
-
+    // 选中框
     public GameObject Selector;
+    // 特殊图块技能
     public enum Power
     {
         BOOM = 1,               //爆炸
@@ -27,86 +29,108 @@ public class GameController : MonoBehaviour
         MAGIC = 8,
         TIME = 4,               //追加时间
     }
-
+    // 下落生成控制器
     public SpawnController drop;
-
+    // 禁选框
     public GameObject NoSelect;
-
+    // 星形图块（结束图块）
     public JewelObj JewelStar;
-
+    // 是否是星图块
     public bool isStar;
-
+    // 是否显示星图块
     public bool isShowStar;
-
+    // 是否添加技能
     public bool isAddPower;
-
+    // 是否播放入场动画
     public Animation StartAnim;
-
+    // ??
     private JewelObj JewelScript;
     private JewelObj JewelScript1;
-
+    // 点击图块
     private GameObject Pointer;
-
+    // 选中的图块
     private GameObject Selected;
-
+    // 鼠标按下过程中 = true
     bool ishold;
     void Awake()
     {
         action = this;
     }
-
+    // 协程初始化
     IEnumerator Start()
     {
-
-        if (PLayerInfo.MODE == 1)
+        // 街机模式
+        if (PLayerInfo.MODE ==  1)
+            // 根据关卡名字创建表格
             StartCoroutine(GribManager.cell.GribMapCreate(PLayerInfo.MapPlayer.Name));
         else
+            // 传统模式
             StartCoroutine(GribManager.cell.GribMapCreate("classic"));
+        // 等1.5s
         yield return new WaitForSeconds(1.5f);
+        // 等待特效时间
         StartCoroutine(EffectSpawner.effect.ComboTick());
+        // 开启计时
         Timer.timer.TimeTick(true);
+        // 设置当前状态为 正在游戏中
         GameState = (int)Timer.GameState.PLAYING;
+        // 隐藏禁选框
         NoSelect.SetActive(false);
     }
 
     void Update()
     {
+        // 等待玩家操作
         JewelSelecter();
         backpress();
     }
     //process click action
     void JewelSelecter()
     {
+        // 鼠标左键按下
         if (Input.GetMouseButtonDown(0))
         {
+            // 按下中
             ishold = true;
-
+            // 
             if (Pointer == null)
             {
+                // 获取点击图块对象
                 Pointer = JewelTouchChecker(Input.mousePosition);
             }
-
+            // 停止提示动画
             Supporter.sp.StopSuggestionAnim();
+            // 如果不是宝石对象
             if (Pointer != null && !Pointer.name.Contains("Jewel"))
                 Pointer = null;
         }
+        
         else if (Input.GetMouseButton(0) && ishold)
         {
+            // 如果点击图块不是空
             if (Pointer != null)
             {
+                // 显示选择框
                 EnableSelector(Pointer.transform.position);
+                // 获取当前鼠标位置的宝石对象
                 Selected = JewelTouchChecker(Input.mousePosition);
+                // 如果当前宝石对象不为空且原来宝石对象不为空
                 if (Selected != null && Pointer != Selected && Selected.name.Contains("Jewel"))
                 {
+                    // 检查两个宝石对象的距离是否符合要求
                     if (DistanceChecker(Pointer, Selected))
                     {
+                        // 检查消除
                         RuleChecker(Pointer, Selected);
+                        // 清空对象
                         Pointer = null;
                         Selected = null;
+                        // 隐藏选择框
                         Selector.SetActive(false);
                     }
                     else
                     {
+                        // 
                         Pointer = Selected;
                         Selected = null;
                         EnableSelector(Pointer.transform.position);
@@ -114,6 +138,7 @@ public class GameController : MonoBehaviour
                 }
             }
         }
+        // 鼠标左键弹起
         else if (Input.GetMouseButtonUp(0))
         {
             ishold = false;
@@ -292,7 +317,7 @@ public class GameController : MonoBehaviour
         }
         StartCoroutine(SpawnJewelPower(type, power, pos));
     }
-
+    // 获取鼠标当前位置的宝石对象，参数鼠标位置
     GameObject JewelTouchChecker(Vector3 mouseposition)
     {
         Vector3 wp = Camera.main.ScreenToWorldPoint(mouseposition);

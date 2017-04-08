@@ -3,20 +3,24 @@ using System.Collections;
 
 public class Map : MonoBehaviour
 {
-
+    // 玩家数据对象
     public Player map;
-
+    // 鼠标按下时
     void OnMouseDown()
     {
-
+        // 相机移动状态 = true
         CameraMovement.setstate = true;
+        // 相机不移动
         CameraMovement.movement = false;
+        // 若数据加载完成
         if (DataLoader.enableclick)
+            // 缩放
             transform.GetChild(0).transform.localScale = new Vector3(0.8f, 0.75f, 1);
     }
+    // 鼠标弹起时
     void OnMouseUp()
     {
-
+        // 相机移动状态 = false
         CameraMovement.setstate = false;
         if (DataLoader.enableclick && !CameraMovement.movement)
         {

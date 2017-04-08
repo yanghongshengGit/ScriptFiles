@@ -106,9 +106,9 @@ public class CameraMovement : MonoBehaviour
     {
         // 设置相机位置
         transform.position = new Vector3(transform.position.x, -(container.anchoredPosition.y - 4740f) * distance, transform.position.z);
-        // 如果是移动状态
+        // 如果鼠标按下
         if (setstate)
-            // 移动 = true
+            // 可以移动
             movement = true;
     }
 

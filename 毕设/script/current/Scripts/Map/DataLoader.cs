@@ -20,11 +20,11 @@ public class DataLoader : MonoBehaviour
     const string KEY_DATA = "DATA";                             // key PlayerPrefs
     // 存入文件的key值 -- 第一次
     const string KEY_FRISTTIME = "one";                         // key check first app to play 
-    
+
     public static bool enableclick;
-
+    // 地图坐标
     public const string KEY_MAPPOS = "mappos";
-
+    
     public GameObject map;
 
     private GameObject tmp;
