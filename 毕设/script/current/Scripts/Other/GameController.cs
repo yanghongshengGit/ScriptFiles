@@ -104,7 +104,7 @@ public class GameController : MonoBehaviour
             if (Pointer != null && !Pointer.name.Contains("Jewel"))
                 Pointer = null;
         }
-        
+        // 鼠标左键按下没松
         else if (Input.GetMouseButton(0) && ishold)
         {
             // 如果点击图块不是空
@@ -130,9 +130,11 @@ public class GameController : MonoBehaviour
                     }
                     else
                     {
-                        // 
+                        // 将鼠标当前位置对象作为点击对象
                         Pointer = Selected;
+                        // 当前选择为空
                         Selected = null;
+                        // 显示选择框
                         EnableSelector(Pointer.transform.position);
                     }
                 }
@@ -141,14 +143,17 @@ public class GameController : MonoBehaviour
         // 鼠标左键弹起
         else if (Input.GetMouseButtonUp(0))
         {
+            // 保持按下标志为false
             ishold = false;
         }
     }
-    //check distance between 2 object
+    //检查两个宝石对象的距离是否<=1
     bool DistanceChecker(GameObject obj1, GameObject obj2)
     {
+        // 获取宝石对象坐标
         Vector2 v1 = obj1.GetComponent<JewelObj>().jewel.JewelPosition;
         Vector2 v2 = obj2.GetComponent<JewelObj>().jewel.JewelPosition;
+        // 距离是否<=1
         if (Vector2.Distance(v1, v2) <= 1)
         {
             return true;
@@ -156,68 +161,84 @@ public class GameController : MonoBehaviour
 
         return false;
     }
-    //check logic game
+    //消除检查
     public void RuleChecker(GameObject obj1, GameObject obj2)
     {
+        // 获取对象上的宝石对象脚本
         JewelObj Jewel1 = obj1.GetComponent<JewelObj>();
         JewelObj Jewel2 = obj2.GetComponent<JewelObj>();
-
 
         LogUtils.TraceNow("Pointer:" + Jewel1.jewel.JewelPosition.x + "," + Jewel1.jewel.JewelPosition.y);
         LogUtils.TraceNow("Selected:" + Jewel2.jewel.JewelPosition.x + "," + Jewel2.jewel.JewelPosition.y);
 
+        // (以obj1为中心)将横向要消除的对象列表与纵向要消除的对象列表合并
         List<JewelObj> NeiObj1 = Ulti.ListPlus(
             Jewel1.GetCollumn(Jewel2.jewel.JewelPosition, Jewel1.jewel.JewelType, null),
             Jewel1.GetRow(Jewel2.jewel.JewelPosition, Jewel1.jewel.JewelType, null),
             Jewel1);
+        // (以obj2为中心)将横向要消除的对象列表与纵向要消除的对象列表合并
         List<JewelObj> NeiObj2 = Ulti.ListPlus(Jewel2.GetCollumn(Jewel1.jewel.JewelPosition, Jewel2.jewel.JewelType, null),
                                          Jewel2.GetRow(Jewel1.jewel.JewelPosition, Jewel2.jewel.JewelType, null), Jewel2);
 
 
-
+        // 如果obj1或obj2的类型是星形
         if (Jewel1.jewel.JewelType == 99 || Jewel2.jewel.JewelType == 99)
+            // 同时obj1或obj2的类型是特殊技能-清除相同图块
             if (Jewel1.jewel.JewelType == 8 || Jewel2.jewel.JewelType == 8)
             {
+                // 播放移动无效的动画
                 Jewel1.SetBackAnimation(obj2);
                 Jewel2.SetBackAnimation(obj1);
                 return;
             }
-
+        // obj1或obj2消除列表>=3, 或 obj1或obj2的类型是特殊技能-清除相同图块
         if (NeiObj1.Count >= 3 || NeiObj2.Count >= 3 || Jewel1.jewel.JewelType == 8 || Jewel2.jewel.JewelType == 8)
         {
-
+            // 交换obj1,obj2位置
             Ulti.MoveTo(obj1, obj2.transform.localPosition, 0.2f);
             Ulti.MoveTo(obj2, obj1.transform.localPosition, 0.2f);
-
+            // 交换obj1,obj2在数组中位置
             SwapJewelPosition(obj1, obj2);
+            // 进行消除运算
             JewelProcess(NeiObj1, NeiObj2, obj1, obj2);
         }
         else
         {
+            // 播放移动无效的动画
             Jewel1.SetBackAnimation(obj2);
             Jewel2.SetBackAnimation(obj1);
         }
     }
 
+    // 按Esc键返回
     void backpress()
     {
+        // 按Esc时正在游戏状态
         if (Input.GetKeyDown(KeyCode.Escape) && GameState == (int)Timer.GameState.PLAYING)
         {
+            // 暂停计时
             Timer.timer.Pause();
         }
+        // 按Esc时正在暂停状态
         else if (Input.GetKeyDown(KeyCode.Escape) && GameState == (int)Timer.GameState.PAUSE)
         {
+            // 恢复计时
             Timer.timer.Resume();
         }
     }
+    // 宝石消除运算过程
     void JewelProcess(List<JewelObj> list1, List<JewelObj> list2, GameObject obj1, GameObject obj2)
     {
+        // 获取消除列表数量
         int c1 = list1.Count;
         int c2 = list2.Count;
+        // 如果obj1消除数量>2
         if (c1 > 2)
         {
+            // 进入分级消除
             ListProcess(list1, obj2, obj1, obj1.GetComponent<JewelObj>().jewel.JewelType);
         }
+        // 或是obj1的类型为特殊技能-消除相同
         else if (obj1.GetComponent<JewelObj>().jewel.JewelType == 8)
         {
             obj2.GetComponent<JewelObj>().Destroy();
@@ -246,7 +267,7 @@ public class GameController : MonoBehaviour
         }
 
     }
-
+    // 对要消除数量分级，根据级别消除
     bool ListProcess(List<JewelObj> list, GameObject obj, GameObject obj1, int type)
     {
         Vector3 v;
