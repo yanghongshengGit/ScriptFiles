@@ -24,6 +24,7 @@ public class JewelObj : MonoBehaviour
     {
         //从宝石数组中移除自身
         RemoveFromList((int)jewel.JewelPosition.x, (int)jewel.JewelPosition.y);
+        // 销毁宝石（协程）
         StartCoroutine(_Destroy());
     }
 
@@ -53,18 +54,22 @@ public class JewelObj : MonoBehaviour
         }
     }
 
-    //move jewel and destroy
+    // 移动宝石并销毁
     public void ReGroup(Vector2 pos)
     {
+        // 向pos位置移动，后销毁（协程）
         StartCoroutine(_ReGroup(pos));
     }
 
     IEnumerator _ReGroup(Vector2 pos)
     {
+        // 从数组中移除该对象
         RemoveFromList((int)jewel.JewelPosition.x, (int)jewel.JewelPosition.y);
+        // 等待时间DELAY - 0.015f
         yield return new WaitForSeconds(DELAY - 0.015f);
+        // 移动到pos
         Ulti.MoveTo(this.gameObject, pos, DELAY);
-
+        // 销毁宝石（协程）
         StartCoroutine(_Destroy());
     }
 

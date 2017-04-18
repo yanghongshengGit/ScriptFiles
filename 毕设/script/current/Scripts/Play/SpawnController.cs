@@ -28,12 +28,16 @@ public class SpawnController : MonoBehaviour
             this.enabled = false;
         }
     }
-
+    // 下落并生成新对象
     IEnumerator DropAndSpawn()
     {
+        // 下落
         Drop();
+        // 等一帧
         yield return new WaitForEndOfFrame();
+        // 生成新对象
         Spawn();
+        // 
         BonusPower();
         ShowStar();
     }
@@ -130,11 +134,13 @@ public class SpawnController : MonoBehaviour
         StartCoroutine(JewelSpawner.spawn.Respawn());
     }
 
-
+    // 奖励技能
     void BonusPower()
     {
+        // 如果添加技能
         if (GameController.action.isAddPower)
         {
+            // 添加技能
             GameController.action.AddBonusPower();
             GameController.action.isAddPower = false;
         }
