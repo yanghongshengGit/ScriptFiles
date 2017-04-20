@@ -56,11 +56,11 @@ public class EffectSpawner : MonoBehaviour
 
     private int ComboCount = 0;			// 效果组合计数
 
-	private int ThunderCount = 0;		// 雷电效果计数
+	private int ThunderCount = 0;		// 火球效果计数
 
-    private int PowerCount = 0;
+    private int PowerCount = 0;         // 技能计数
 
-    public float ComboCountdown;
+    public float ComboCountdown;        // 下落刷新时间
 
     float EnergyStack = 0;				// 能量条当前值
 
@@ -234,9 +234,13 @@ public class EffectSpawner : MonoBehaviour
     /// <param name="power"></param>
     public void ThunderRow(GameObject obj, int power)
     {
+        // 实例化火箭触发特效
         GameObject tmp = (GameObject)Instantiate(EffectPrefabs[5]);
+        // 设置父节点
         tmp.transform.SetParent(obj.transform.GetChild(0).transform, false);
+        // 如果技能类型是纵向火箭
         if (power == 3)
+            // 设置特效角度为纵向
             tmp.transform.localEulerAngles = new Vector3(0, 0, 90);
     }
 
@@ -341,23 +345,28 @@ public class EffectSpawner : MonoBehaviour
         }
     }
 
+    // 播放火球特效
     public GameObject MGE(Vector3 pos, Vector3 target)
     {
+        // 实例化火球特效
         GameObject tmp = (GameObject)Instantiate(EffectPrefabs[11]);
+        // 设置特效父节点
         tmp.transform.SetParent(parent.transform, false);
+        // 设置特效坐标
         tmp.transform.position = new Vector3(pos.x, pos.y, -0.22f);
-
+        // 火球转向弧度
         float AngleRad = Mathf.Atan2(target.y - pos.y, target.x - pos.x);
-
+        // 火球转向角度
         float AngleDeg = (180 / Mathf.PI) * AngleRad;
-
+        // 设置火球旋转角度
         tmp.transform.rotation = Quaternion.Euler(0, 0, AngleDeg);
-
+        // 火球移动到目标位置
         Ulti.MoveTo(tmp, target, 0.4f);
+        // 销毁特效
         Destroy(tmp, 0.4f);
-
+        // 播放射击音效
         SoundController.Sound.Gun();
-
+        // 返回特效
         return tmp;
     }
 

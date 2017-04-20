@@ -17,17 +17,19 @@ public class SoundController : MonoBehaviour
     {
         if (Sound == null)
         {
+            // 切换场景也不销毁对象
             DontDestroyOnLoad(gameObject);
             Sound = this;
         }
         else if (Sound != this)
         {
+            // 销毁对象
             Destroy(gameObject);
         }
     }
 
     /// <summary>
-    /// sound on state
+    /// 打开音效
     /// </summary>
     public void SoundON()
     {
@@ -35,54 +37,60 @@ public class SoundController : MonoBehaviour
     }
 
     /// <summary>
-    /// sound off state
+    /// 关闭音效
     /// </summary>
     public void SoundOFF()
     {
         audiosource.mute = true;
     }
-
+    // 点击按钮音效
     public void Click()
     {
 		// 播放一个声音片段，参数 音效片段，音量
         audiosource.PlayOneShot(SoundClips[0]);
 
     }
+    // 宝石销毁音效
     public void JewelCrash()
     {
         audiosource.PlayOneShot(SoundClips[1]);
     }
-
+    // 解锁音效
     public void LockCrash()
     {
         audiosource.PlayOneShot(SoundClips[2]);
     }
+    // 冰崩音效
     public void IceCrash()
     {
         audiosource.PlayOneShot(SoundClips[3]);
     }
-
+    // 胜利音效
     public void Win()
     {
         audiosource.PlayOneShot(SoundClips[4]);
     }
+    // 失败音效
     public void Lose()
     {
         audiosource.PlayOneShot(SoundClips[5]);
     }
-
+    // 星星宝石出现音效
     public void StarIn()
     {
         audiosource.PlayOneShot(SoundClips[6]);
     }
+    // 火箭音效
     public void Fire()
     {
         audiosource.PlayOneShot(SoundClips[7]);
     }
+    // 火球音效
     public void Gun()
     {
         audiosource.PlayOneShot(SoundClips[8]);
     }
+    // 爆炸音效
     public void Boom()
     {
         audiosource.PlayOneShot(SoundClips[9]);

@@ -171,12 +171,12 @@ public class GameController : MonoBehaviour
         LogUtils.TraceNow("Pointer:" + Jewel1.jewel.JewelPosition.x + "," + Jewel1.jewel.JewelPosition.y);
         LogUtils.TraceNow("Selected:" + Jewel2.jewel.JewelPosition.x + "," + Jewel2.jewel.JewelPosition.y);
 
-        // (以obj1为中心)将横向要消除的对象列表与纵向要消除的对象列表合并
+        // (以obj2为中心)将横向要消除的对象列表与纵向要消除的对象列表合并
         List<JewelObj> NeiObj1 = Ulti.ListPlus(
             Jewel1.GetCollumn(Jewel2.jewel.JewelPosition, Jewel1.jewel.JewelType, null),
             Jewel1.GetRow(Jewel2.jewel.JewelPosition, Jewel1.jewel.JewelType, null),
             Jewel1);
-        // (以obj2为中心)将横向要消除的对象列表与纵向要消除的对象列表合并
+        // (以obj1为中心)将横向要消除的对象列表与纵向要消除的对象列表合并
         List<JewelObj> NeiObj2 = Ulti.ListPlus(Jewel2.GetCollumn(Jewel1.jewel.JewelPosition, Jewel2.jewel.JewelType, null),
                                          Jewel2.GetRow(Jewel1.jewel.JewelPosition, Jewel2.jewel.JewelType, null), Jewel2);
 
@@ -241,8 +241,11 @@ public class GameController : MonoBehaviour
         // 或是obj1的类型为特殊技能-消除相同
         else if (obj1.GetComponent<JewelObj>().jewel.JewelType == 8)
         {
+            // 消除原本对象
             obj2.GetComponent<JewelObj>().Destroy();
+            // 消除相同类型对象
             PDestroyType(obj2.GetComponent<JewelObj>().jewel.JewelType, obj2.transform.position);
+            // 消除交换的对象
             obj1.GetComponent<JewelObj>().Destroy();
         }
         // obj2消除数量>2
@@ -254,8 +257,11 @@ public class GameController : MonoBehaviour
         // 或是obj2的类型为特殊技能-消除相同
         else if (obj2.GetComponent<JewelObj>().jewel.JewelType == 8)
         {
+            // 消除原本对象
             obj1.GetComponent<JewelObj>().Destroy();
+            // 消除相同类型对象
             PDestroyType(obj1.GetComponent<JewelObj>().jewel.JewelType, obj1.transform.position);
+            // 消除交换的对象
             obj2.GetComponent<JewelObj>().Destroy();
         }
 
@@ -274,14 +280,17 @@ public class GameController : MonoBehaviour
     bool ListProcess(List<JewelObj> list, GameObject obj, GameObject obj1, int type)
     {
         Vector3 v;// 宝石对象坐标
-
+        // 交换的对象
         if (obj1 != null)
         {
+            // 获取对象坐标
             JewelScript = obj1.GetComponent<JewelObj>();
             v = new Vector3(JewelScript.jewel.JewelPosition.x, JewelScript.jewel.JewelPosition.y);
         }
+        // 本对象
         else
         {
+            // 获取对象坐标
             JewelScript = obj.GetComponent<JewelObj>();
             v = new Vector3(JewelScript.jewel.JewelPosition.x, JewelScript.jewel.JewelPosition.y);
         }
@@ -289,7 +298,7 @@ public class GameController : MonoBehaviour
         int c = list.Count;
         if (c == 3)
         {
-            // 消除宝石
+            // 消除宝石 生成新宝石
             DestroyJewel(list);
             // 增加特效计数
             EffectSpawner.effect.ComBoInc();
@@ -299,7 +308,7 @@ public class GameController : MonoBehaviour
         }
         else if (c == 4)
         {
-            // 移动并消除宝石
+            // 移动并消除宝石 生成新宝石
             ReGroup(list, type, (int)Power.BOOM, v);
             // 有限随机消除一个宝石对象
             DestroyRandom();
@@ -310,10 +319,15 @@ public class GameController : MonoBehaviour
         }
         else if (c >= 5)
         {
+            // 移动并消除宝石 生成新宝石类型五彩
             ReGroup(list, 8, (int)Power.MAGIC, v);
+            // 增加特效计数
             EffectSpawner.effect.ComBoInc();
+            // （有限随机）随机删除一个宝石
             DestroyRandom();
+            // （有限随机）随机删除一个宝石
             DestroyRandom();
+            // 开启下落检查
             dropjewel();
         }
 
@@ -325,7 +339,9 @@ public class GameController : MonoBehaviour
     /// </summary>
     void dropjewel()
     {
+        // 下落时间
         drop.DELAY = DROP_DELAY;
+        // 启动updata检查下落
         drop.enabled = true;
     }
     // 消除宝石
@@ -344,6 +360,7 @@ public class GameController : MonoBehaviour
             item.Destroy();
         }
     }
+    // 消除宝石
     void ReGroup(List<JewelObj> list, int type, int power, Vector2 pos)
     {
         // 播放消除音效
@@ -356,15 +373,20 @@ public class GameController : MonoBehaviour
             // 移动消除宝石
             item.ReGroup(pos);
         }
+        // 生成有技能的宝石对象
         StartCoroutine(SpawnJewelPower(type, power, pos));
     }
     // 获取鼠标当前位置的宝石对象，参数鼠标位置
     GameObject JewelTouchChecker(Vector3 mouseposition)
     {
+        // 获取鼠标当前坐标
         Vector3 wp = Camera.main.ScreenToWorldPoint(mouseposition);
+        // 转化为二维坐标
         Vector2 touchPos = new Vector2(wp.x, wp.y);
+        // 检测是否有碰撞
         if (Physics2D.OverlapPoint(touchPos))
         {
+            // 返回碰撞的宝石对象
             return Physics2D.OverlapPoint(touchPos).gameObject;
         }
         return null;
@@ -378,6 +400,7 @@ public class GameController : MonoBehaviour
     /// <param name="jewel2"></param>
     void SwapJewelPosition(GameObject jewel1, GameObject jewel2)
     {
+        // 获取对象上的宝石对象脚本
         JewelObj tmp1 = jewel1.GetComponent<JewelObj>();
         JewelObj tmp2 = jewel2.GetComponent<JewelObj>();
 
@@ -399,6 +422,7 @@ public class GameController : MonoBehaviour
             WinChecker();
 
     }
+    // 生成新宝石
     IEnumerator SpawnJewelPower(int type, int power, Vector2 pos)
     {
         // 等0.4f
@@ -419,15 +443,16 @@ public class GameController : MonoBehaviour
     /// <param name="y"></param>
     public void CellRemoveEffect(int x, int y)
     {
+        // 播放左边格子特效
         if (x - 1 >= 0 && GribManager.cell.GribCellObj[x - 1, y] != null)
             GribManager.cell.GribCellObj[x - 1, y].RemoveEffect();
-
+        // 播放右边格子特效
         if (x + 1 < 7 && GribManager.cell.GribCellObj[x + 1, y] != null)
             GribManager.cell.GribCellObj[x + 1, y].RemoveEffect();
-
+        // 播放下边格子特效
         if (y - 1 >= 0 && GribManager.cell.GribCellObj[x, y - 1] != null)
             GribManager.cell.GribCellObj[x, y - 1].RemoveEffect();
-
+        // 播放上边格子特效
         if (y + 1 < 9 && GribManager.cell.GribCellObj[x, y + 1] != null)
             GribManager.cell.GribCellObj[x, y + 1].RemoveEffect();
     }
@@ -439,26 +464,38 @@ public class GameController : MonoBehaviour
     /// <param name="y"></param>
     public void PDestroyRow(int _x, int y)
     {
+        // 开始检查下落
         dropjewel();
+        // 播放火箭音效
         SoundController.Sound.Fire();
+        // 格子列表
         List<CellObj> celleffect = new List<CellObj>();
+        // 宝石列表
         List<JewelObj> jeweldes = new List<JewelObj>();
+        // 遍历横坐标
         for (int x = 0; x < 7; x++)
         {
+            // 除了该对象
             if (_x != x)
             {
+                // 这个位置的格子添加到格子列表
                 if (GribManager.cell.GribCellObj[x, y] != null && GribManager.cell.GribCellObj[x, y].cell.CellEffect > 0)
                     celleffect.Add(GribManager.cell.GribCellObj[x, y]);
+                // 这个位置的宝石添加到宝石列表
                 if (JewelSpawner.spawn.JewelGribScript[x, y] != null && JewelSpawner.spawn.JewelGribScript[x, y].jewel.JewelType != 99 && GribManager.cell.GribCellObj[x, y].cell.CellEffect == 0)
                     jeweldes.Add(JewelSpawner.spawn.JewelGribScript[x, y]);
             }
         }
+        // 遍历格子列表
         foreach (CellObj item in celleffect)
         {
+            // 播放特效并移除
             item.RemoveEffect();
         }
+        // 遍历宝石列表
         foreach (JewelObj item in jeweldes)
         {
+            // 销毁对象
             item.Destroy();
         }
     }
@@ -470,50 +507,72 @@ public class GameController : MonoBehaviour
     /// <param name="_y"></param>
     public void PDestroyCollumn(int x, int _y)
     {
+        // 开始检查下落
         dropjewel();
+        // 播放火箭音效
         SoundController.Sound.Fire();
+        // 格子列表
         List<CellObj> celleffect = new List<CellObj>();
+        // 宝石列表
         List<JewelObj> jeweldes = new List<JewelObj>();
+        // 遍历纵坐标
         for (int y = 0; y < 9; y++)
         {
+            // 除了该对象
             if (_y != y)
             {
+                // 这个位置的格子添加到格子列表
                 if (GribManager.cell.GribCellObj[x, y] != null && GribManager.cell.GribCellObj[x, y].cell.CellEffect > 0)
                     celleffect.Add(GribManager.cell.GribCellObj[x, y]);
+                // 这个位置的宝石添加到宝石列表
                 if (JewelSpawner.spawn.JewelGribScript[x, y] != null && JewelSpawner.spawn.JewelGribScript[x, y].jewel.JewelType != 99 && GribManager.cell.GribCellObj[x, y].cell.CellEffect == 0)
                     jeweldes.Add(JewelSpawner.spawn.JewelGribScript[x, y]);
             }
         }
+        // 遍历格子列表
         foreach (CellObj item in celleffect)
         {
+            // 播放特效并移除
             item.RemoveEffect();
         }
+        // 遍历宝石列表
         foreach (JewelObj item in jeweldes)
         {
+            // 销毁对象
             item.Destroy();
         }
     }
+    // 爆炸消除
     public void PBoom(int x, int y)
     {
+        // 开始检查下落
         dropjewel();
+        // 以该对象为中心遍历周围
         for (int i = x - 1; i <= x + 1; i++)
             for (int j = y - 1; j <= y + 1; j++)
             {
+                // 除了该对象
                 if (i != x || j != y)
+                    // 没有越界，不为空，且不是星星宝石
                     if (i >= 0 && i < 7 && j >= 0 && j < 9 && JewelSpawner.spawn.JewelGribScript[i, j] != null && JewelSpawner.spawn.JewelGribScript[i, j].jewel.JewelType != 99)
+                        // 销毁宝石
                         JewelSpawner.spawn.JewelGribScript[i, j].Destroy();
             }
     }
-
+    // 消除相同类型对象
     public void PDestroyType(int type, Vector3 pos)
     {
+        // 消除相同类型对象（协程）
         StartCoroutine(DestroyType(type, pos));
     }
-
+    // 消除相同类型对象
     IEnumerator DestroyType(int type, Vector3 pos)
     {
+        // 激活禁选框
         NoSelect.SetActive(true);
+        // 开启滑落检测
         dropjewel();
+        // 遍历宝石列表
         for (int x = 0; x < 7; x++)
         {
             for (int y = 0; y < 9; y++)
@@ -521,14 +580,18 @@ public class GameController : MonoBehaviour
                 JewelObj tmp = JewelSpawner.spawn.JewelGribScript[x, y];
                 if (tmp != null && tmp.jewel.JewelType == type)
                 {
+                    // 播放特效
                     EffectSpawner.effect.MGE(pos, JewelSpawner.spawn.JewelGrib[x, y].transform.position);
+                    // 销毁宝石对象
                     tmp.Destroy();
 
                 }
 
             }
         }
+        // 等0.2s
         yield return new WaitForSeconds(0.2f);
+        // 隐藏禁选框
         NoSelect.SetActive(false);
     }
 
@@ -539,7 +602,7 @@ public class GameController : MonoBehaviour
     {
         StartCoroutine(TimeInc());
     }
-
+    // 随机消除一个宝石
     public void DestroyRandom()
     {
         //uu tien destroy ganh
@@ -559,11 +622,12 @@ public class GameController : MonoBehaviour
                     CellObj tmp = listeff[Random.Range(0, listeff.Count)];
                     // 播放并移除特效
                     tmp.RemoveEffect();
-                    // 雷？？
+                    // 播放火球特效
                     EffectSpawner.effect.Thunder(GribManager.cell.GribCell[(int)tmp.cell.CellPosition.x, (int)tmp.cell.CellPosition.y].transform.position);
                 }
                 else
                 {
+                    // 从特殊格子中随机一个消除
                     destroynotempty();
                 }
 
@@ -579,6 +643,7 @@ public class GameController : MonoBehaviour
                 {
                     // 销毁该对象
                     tmp.Destroy();
+                    // 播放火球特效
                     EffectSpawner.effect.Thunder(GribManager.cell.GribCell[(int)tmp.jewel.JewelPosition.x, (int)tmp.jewel.JewelPosition.y].transform.position);
                 }
             }
@@ -607,36 +672,50 @@ public class GameController : MonoBehaviour
     // 获取所有非普通格子的列表
     private List<CellObj> getListNotEmpty()
     {
+        // 格子列表
         List<CellObj> tmp = new List<CellObj>();
+        // 遍历格子列表
         for (int y = 0; y < 9; y++)
         {
             for (int x = 0; x < 7; x++)
             {
+                // 格子不为空且是特殊格子
                 if (GribManager.cell.GribCellObj[x, y] != null && GribManager.cell.GribCellObj[x, y].cell.CellType > 1)
                 {
+                    // 该位置宝石对象不为空
                     if (JewelSpawner.spawn.JewelGribScript[x, y] != null)
+                        // 该位置格子添加到列表
                         tmp.Add(GribManager.cell.GribCellObj[x, y]);
                 }
             }
         }
+        // 返回列表
         return tmp;
     }
-    // 星星下方随机一个图块坐标
+    // 星星下方随机一个宝石坐标
     private Vector2 posUnderStar()
     {
+        // 二维坐标列表
         List<Vector2> under = new List<Vector2>();
+        // 获取星星宝石现在位置
         int x = (int)JewelStar.jewel.JewelPosition.x;
         int y = (int)JewelStar.jewel.JewelPosition.y;
+        // 遍历星星宝石正下方宝石
         for (int i = 0; i < y; i++)
         {
+            // 该位置宝石对象不为空
             if (JewelSpawner.spawn.JewelGribScript[x, i] != null)
+                // 添加到坐标列表
                 under.Add(JewelSpawner.spawn.JewelGribScript[x, i].jewel.JewelPosition);
         }
+        // 如果星星宝石下方有宝石
         if (under.Count > 0)
+            // 返回随机其中一个的坐标
             return under[Random.Range(0, under.Count)];
+        // 返回星星宝石坐标
         else return new Vector2(x, y);
     }
-
+    // 从特殊格子中随机一个消除
     private void destroynotempty()
     {
         try
@@ -653,6 +732,7 @@ public class GameController : MonoBehaviour
                 {
                     // 销毁该对象
                     JewelSpawner.spawn.JewelGribScript[(int)tmp.x, (int)tmp.y].Destroy();
+                    // 播放火球特效
                     EffectSpawner.effect.Thunder(GribManager.cell.GribCell[(int)tmp.x, (int)tmp.y].transform.position);
                 }
             }
@@ -661,21 +741,25 @@ public class GameController : MonoBehaviour
         {
         }
     }
-
+    // 追加游戏时间
     IEnumerator TimeInc()
     {
-        int dem = 0;
+        int dem = 0;    //？？
+        // 一次追加的时长
         int t = 22;
         while (t > 0)
         {
             dem++;
+            // 一帧加1s时长
             Timer.timer.GameTime += 1;
+            // 拥有的时长不能大于270
             if (Timer.timer.GameTime >= 270f)
             {
                 Timer.timer.GameTime = 270f;
                 break;
             }
             t -= 1;
+            // 等一帧
             yield return null;
             if (dem >= 270) break;
 
@@ -688,67 +772,89 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void AddBonusPower()
     {
+        // 产生技能次数
         int dem = 0;
         while (true)
         {
             dem++;
+            // 超过63次，就不在给宝石赋予技能
             if (dem >= 63)
                 return;
+            // 随机一个宝石坐标
             int x = Random.Range(0, 7);
             int y = Random.Range(0, 9);
+            // 获取对应宝石对象
             JewelObj tmp = JewelSpawner.spawn.JewelGribScript[x, y];
+            // 该对象不为空，不是五彩宝石，没有宝石技能，所在格子是普通格子
             if (tmp != null && tmp.jewel.JewelType != 8 && tmp.jewel.JewelPower == 0 && GribManager.cell.GribCellObj[x, y].cell.CellEffect == 0)
             {
                 //随机1种技能
                 int r = Random.Range(2, 4);
+                // 给宝石技能赋值
                 tmp.jewel.JewelPower = r;
+                // 生成火箭触发特效
                 EffectSpawner.effect.ThunderRow(JewelSpawner.spawn.JewelGrib[x, y], r);
                 return;
             }
         }
     }
-
+    // 显示星星宝石
     public void ShowStar()
     {
+        // 二维坐标列表
         List<Vector2> listpos = new List<Vector2>();
-        Vector2 pos;
+        // 从上向下遍历格子数组
         for (int y = 9 - 1; y >= 0; y--)
         {
             for (int x = 0; x < 7; x++)
             {
+                // 该格子不为空
                 if (GribManager.cell.GribCellObj[x, y] != null)
+                    // 将格子坐标存入列表
                     listpos.Add(new Vector2(x, y));
             }
+            // 若列表不为空跳出循环
             if (listpos.Count > 0)
                 break;
         }
-        pos = listpos[Random.Range(0, listpos.Count)];
+        // 从列表中随机一个格子的坐标
+        Vector2 pos = listpos[Random.Range(0, listpos.Count)];
+        // 生成星星宝石对象
         JewelSpawner.spawn.SpawnStar(pos);
+        // 播放音效
         SoundController.Sound.StarIn();
     }
-
+    // 判断是否赢了
     public void WinChecker()
     {
+        // 当前最小y坐标
         int Min = 0;
+        // 从下往上遍历格子数组
         for (int y = 0; y < 9; y++)
         {
+            // 取得与星星宝石同列宝石对象
             if (GribManager.cell.GribCellObj[(int)JewelStar.jewel.JewelPosition.x, y] != null)
             {
+                // 将当前y坐标赋予Min并跳出循环
                 Min = y;
                 break;
             }
         }
-
+        // 如果星星宝石的y坐标 = 最小y坐标
         if ((int)JewelStar.jewel.JewelPosition.y == Min)
         {
+            // 执行赢了的特效和动作
             Timer.timer.Win();
+            // 销毁星星宝石
             Destroy(JewelStar.gameObject);
         }
     }
-
+    // 显示选中框
     void EnableSelector(Vector3 pos)
     {
+        // 设置选中框位置
         Selector.transform.position = pos;
+        // 显示选中框
         Selector.SetActive(true);
     }
 }

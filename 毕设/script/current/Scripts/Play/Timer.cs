@@ -151,11 +151,14 @@ public class Timer : MonoBehaviour
             update.enabled = false;
         }
     }
-
+    // 赢了
     public void Win()
     {
+        // 设置当前游戏状态
         GameController.action.GameState = (int)GameState.WIN;
+        // 激活禁选框
         NoSelect.SetActive(true);
+        // 执行赢了的特效和动作（协程）
         StartCoroutine(IEWin());
         //Debug.Log("WIN");
     }
