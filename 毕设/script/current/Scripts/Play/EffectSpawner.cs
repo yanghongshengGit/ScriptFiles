@@ -38,7 +38,7 @@ public class EffectSpawner : MonoBehaviour
 	public UnityEngine.UI.Text level;		// 等级（文本）
 	public UnityEngine.UI.Text best;		// 现最高分（文本）
 	public UnityEngine.UI.Text Score;		// 分数（文本）
-	public UnityEngine.UI.Image Energy;		// 能量条（图片）？时间条
+	public UnityEngine.UI.Image Energy;		// 能量球（图片）
 
     public float REFRESH_COMBO_TIME = 2f;			// 刷新一次效果列表时间？
 
@@ -73,12 +73,12 @@ public class EffectSpawner : MonoBehaviour
 		// 为宝石消除动画数组申请空间
         JewelCrashArray = new GameObject[7, 9];
     }
-	// 效果组合
+	// 更新刷新时间
     public void ContinueCombo()
     {
         ComboCountdown = REFRESH_COMBO_TIME;
     }
-	// 效果组合增加
+	// 增加特效计数
     public void ComBoInc()
     {
         ComboCount++;
@@ -113,7 +113,7 @@ public class EffectSpawner : MonoBehaviour
 	// 添加奖励特效
     private void BonusEffect()
     {
-        ThunderCount++;					// 雷电特效计数+1
+        ThunderCount++;					// 火球特效计数+1
         PowerCount++;
         EnergyStack += 1 / 21f;			// 能量条+ 1/21
         EnergyInc();					// 能量条增长
@@ -121,7 +121,7 @@ public class EffectSpawner : MonoBehaviour
         {
             GameController.action.DestroyRandom();	// 下落 播放特效 生成新序列
 			ThunderCount = 0;						// 置空
-            Energy.fillAmount = 0;
+            Energy.fillAmount = 0;                  // 能量进度置0
             EnergyStack = 0;
         }
         if (PowerCount >= 32)
